@@ -25,17 +25,8 @@ import com.github.gradle.node.yarn.task.YarnTask
 description = "Web interface for OpenDC"
 
 plugins {
-    `java-library-conventions`
+    base
     id("com.github.node-gradle.node")
-}
-
-sourceSets {
-    main {
-        java.srcDir("src")
-    }
-    test {
-        java.srcDir("test")
-    }
 }
 
 val lintTask = tasks.register<YarnTask>("lintNext") {
@@ -86,7 +77,10 @@ tasks.register<YarnTask>("start") {
     outputs.upToDateWhen { true }
 }
 
-tasks.processResources {
+val jar by tasks.creating(Jar::class) {
+    group = BasePlugin.BUILD_GROUP
+    description = "Assembles a WebJar archive"
+
     dependsOn(buildTask)
     inputs.dir(project.fileTree("public"))
 
@@ -107,4 +101,8 @@ tasks.processResources {
     from(project.fileTree("public")) {
         into("META-INF/resources/${project.name}/static")
     }
+}
+
+configurations.named("default") {
+    outgoing.artifact(jar)
 }
